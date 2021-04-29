@@ -5,35 +5,27 @@
 // Version:       0.1.1 24/12/20
 // BMSDK version: 95
 
-#include "Tag.h"
+#include "Tyler.h"
 
 #include <random>
 
 
 /// <summary>Renders the available options for the game mode.</summary>
-void Tag::RenderOptions()
+void Tyler::RenderOptions()
 {
     ImGui::Checkbox("Enable Rumble Touches", &enableRumbleTouches);
-    ImGui::SliderFloat("(0 for infinite)##TimeTillDemolition", &timeTillDemolition, 1, 60, "%.1f Seconds Till Demolition");
-    ImGui::SliderFloat("##InvulnerabilityPeriod", &invulnerabilityPeriod, 0, 1, "%.1f Seconds Invulnerable");
     ImGui::Separator();
 
     ImGui::TextWrapped("Highlight Tagged Player:");
     bool tagOptionChanged = false;
-    if (ImGui::RadioButton("None", taggedOption == TaggedOption::NONE)) {
+    if (ImGui::RadioButton("None", taggedOption == TylerTaggedOption::NONE)) {
         tagOptionChanged = true;
-        taggedOption = TaggedOption::NONE;
+        taggedOption = TylerTaggedOption::NONE;
     }
-    if (ImGui::RadioButton("Unlimited Boost", taggedOption == TaggedOption::UNLIMITED_BOOST)) {
+    if (ImGui::RadioButton("Unlimited Boost", taggedOption == TylerTaggedOption::UNLIMITED_BOOST)) {
         tagOptionChanged = true;
-        taggedOption = TaggedOption::UNLIMITED_BOOST;
+        taggedOption = TylerTaggedOption::UNLIMITED_BOOST;
     }
-    ImGui::BeginDisabled();
-    if (ImGui::RadioButton("Different Color", taggedOption == TaggedOption::DIFFERENT_COLOR)) {
-        tagOptionChanged = true;
-        taggedOption = TaggedOption::DIFFERENT_COLOR;
-    }
-    ImGui::EndDisabled();
     if (tagOptionChanged) {
         removeHighlightsTaggedPlayer();
         highlightTaggedPlayer();
@@ -46,29 +38,29 @@ void Tag::RenderOptions()
 
 /// <summary>Gets if the game mode is active.</summary>
 /// <returns>Bool with if the game mode is active</returns>
-bool Tag::IsActive()
+bool Tyler::IsActive()
 {
     return isActive;
 }
 
 
 /// <summary>Activates the game mode.</summary>
-void Tag::Activate(const bool active)
+void Tyler::Activate(const bool active)
 {
     if (active && !isActive) {
         tagRandomPlayer();
         HookEventWithCaller<ServerWrapper>("Function GameEvent_Soccar_TA.Active.Tick",
-                                           [this](const ServerWrapper& caller, void* params, const std::string&) {
-                                               onTick(caller, params);
-                                           });
+            [this](const ServerWrapper& caller, void* params, const std::string&) {
+            onTick(caller, params);
+        });
         HookEventWithCaller<CarWrapper>("Function TAGame.Car_TA.ApplyCarImpactForces",
-                                        [this](const CarWrapper& caller, void* params, const std::string&) {
-                                            onCarImpact(caller, params);
-                                        });
+            [this](const CarWrapper& caller, void* params, const std::string&) {
+            onCarImpact(caller, params);
+        });
         HookEventWithCaller<ActorWrapper>("Function TAGame.SpecialPickup_Targeted_TA.TryActivate",
-                                          [this](const ActorWrapper& caller, void* params, const std::string&) {
-                                              onRumbleItemActivated(caller, params);
-                                          });
+            [this](const ActorWrapper& caller, void* params, const std::string&) {
+            onRumbleItemActivated(caller, params);
+        });
         HookEvent("Function TAGame.GameEvent_Soccar_TA.InitGame", [this](const std::string&) {
             tagRandomPlayer();
         });
@@ -87,19 +79,20 @@ void Tag::Activate(const bool active)
 
 /// <summary>Gets the game modes name.</summary>
 /// <returns>The game modes name</returns>
-std::string Tag::GetGameModeName()
+std::string Tyler::GetGameModeName()
 {
-    return "Tag";
+    return "Tyler";
 }
 
 
 /// <summary>Gets a random player from the players in the match.</summary>
-void Tag::tagRandomPlayer()
+void Tyler::tagRandomPlayer()
 {
-    timeTagged = 0;
-    std::vector<PriWrapper> players = rocketPlugin->getPlayers(true, true);
+    LOG("tagging a player");
 
-    if (players.size() <= 1) {
+    std::vector<PriWrapper> players = rocketPlugin->getPlayers(false, true);
+
+    if (players.size() <= 0) {
         tagged = emptyPlayer;
         ERROR_LOG("no players to tag");
         return;
@@ -116,9 +109,9 @@ void Tag::tagRandomPlayer()
 
 
 /// <summary>Highlights the tagged player.</summary>
-void Tag::highlightTaggedPlayer() const
+void Tyler::highlightTaggedPlayer() const
 {
-    std::vector<PriWrapper> players = rocketPlugin->getPlayers(true, true);
+    std::vector<PriWrapper> players = rocketPlugin->getPlayers(true);
     for (PriWrapper player : players) {
         if (player.GetUniqueIdWrapper().GetUID() == tagged) {
             addHighlight(player);
@@ -129,29 +122,29 @@ void Tag::highlightTaggedPlayer() const
 
 /// <summary>Highlights the given player.</summary>
 /// <param name="player">player to give the highlight to</param>
-void Tag::addHighlight(PriWrapper player) const
+void Tyler::addHighlight(PriWrapper player) const
 {
     CarWrapper car = player.GetCar();
 
     switch (taggedOption) {
-        case TaggedOption::NONE:
-            break;
-        case TaggedOption::UNLIMITED_BOOST:
-            if (!car.IsNull() && !car.GetBoostComponent().IsNull()) {
-                car.GetBoostComponent().SetUnlimitedBoost2(true);
-                car.SetbOverrideBoostOn(true);
-            }
-            break;
-        case TaggedOption::DIFFERENT_COLOR:
-            break;
+    case TylerTaggedOption::NONE:
+        break;
+    case TylerTaggedOption::UNLIMITED_BOOST:
+        if (!car.IsNull() && !car.GetBoostComponent().IsNull()) {
+            car.GetBoostComponent().SetUnlimitedBoost2(true);
+            car.SetbOverrideBoostOn(true);
+        }
+        break;
+    case TylerTaggedOption::DIFFERENT_COLOR:
+        break;
     }
 }
 
 
 /// <summary>Removes the highlights from the tagged player.</summary>
-void Tag::removeHighlightsTaggedPlayer() const
+void Tyler::removeHighlightsTaggedPlayer() const
 {
-    std::vector<PriWrapper> players = rocketPlugin->getPlayers(true, true);
+    std::vector<PriWrapper> players = rocketPlugin->getPlayers(true);
     for (PriWrapper player : players) {
         if (player.GetUniqueIdWrapper().GetUID() == tagged) {
             removeHighlights(player);
@@ -162,7 +155,7 @@ void Tag::removeHighlightsTaggedPlayer() const
 
 /// <summary>Removes the highlight from the given player.</summary>
 /// <param name="player">player to remove the highlight from</param>
-void Tag::removeHighlights(PriWrapper player) const
+void Tyler::removeHighlights(PriWrapper player) const
 {
     if (player.IsNull()) {
         ERROR_LOG("could not get the player");
@@ -175,7 +168,7 @@ void Tag::removeHighlights(PriWrapper player) const
         ERROR_LOG("could not get the car");
         return;
     }
-    car.GetBoostComponent().SetUnlimitedBoost2(false);
+    car.GetBoostComponent().SetUnlimitedBoost2(true);
     car.SetbOverrideBoostOn(false);
     // Different Color
     // TBD
@@ -186,32 +179,46 @@ void Tag::removeHighlights(PriWrapper player) const
 /// <remarks>Gets called on 'Function GameEvent_Soccar_TA.Active.Tick'.</remarks>
 /// <param name="server"><see cref="ServerWrapper"/> instance of the server</param>
 /// <param name="params">Delay since last update</param>
-void Tag::onTick(ServerWrapper server, void* params)
+void Tyler::onTick(ServerWrapper server, void* params)
 {
     if (server.IsNull()) {
         ERROR_LOG("could not get the server");
         return;
     }
 
+    // Pick the first infected player at random
     if (tagged == emptyPlayer) {
         tagRandomPlayer();
         return;
     }
 
-    // dt since last tick in seconds
+    // This is used because we have params that need used by the compiler
     const float dt = *static_cast<float*>(params);
-    timeTagged += dt;
-    if (timeTillDemolition == 0.f || timeTagged < timeTillDemolition) {
-        return;
-    }
 
-    std::vector<PriWrapper> players = rocketPlugin->getPlayers(true, true);
+    // Give all players infinite boost
+    std::vector<PriWrapper> players = rocketPlugin->getPlayers(false, true);
     for (PriWrapper player : players) {
-        if (player.GetUniqueIdWrapper().GetUID() == tagged) {
-            rocketPlugin->demolish(player);
-            player.ServerChangeTeam(-1);
+        // only do this if you're on the infected team
+        CarWrapper car = player.GetCar();
+        if (car.IsNull()) {
+            ERROR_LOG("could not get the car");
+            return;
         }
+        car.GetBoostComponent().SetCurrentBoostAmount(100);
     }
 
-    tagRandomPlayer();
+
+    //std::vector<PriWrapper> players = rocketPlugin->getPlayers(true);
+    //for (PriWrapper player : players) {
+    //    if (player.GetUniqueIdWrapper().GetUID() == tagged) {
+    //        //rocketPlugin->demolish(player);
+    //        player.ServerChangeTeam(0);
+    //    }
+    //}
 }
+
+
+//void Tyler::onCarImpact(CarWrapper car, void* params)
+//{
+//
+//}

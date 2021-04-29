@@ -82,7 +82,7 @@ void RocketPlugin::renderMultiplayerTabHost()
         ImGui::TextUnformatted(" Arena:");
         if (gameWrapper->IsUsingSteamVersion()) {
             ImGui::SameLine();
-            if (ImGui::Checkbox("OH GOD PLEASE WORK", &enableWorkshopMaps)) {
+            if (ImGui::Checkbox("Enable workshop maps", &enableWorkshopMaps)) {
                 currentMap.clear();
                 refreshCustomMapPaths = true;
             }

@@ -103,6 +103,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="GameModes\BoostMod.h" />
+	<ClInclude Include="GameModes\Tyler.h" />
     <ClInclude Include="gamemodes\BoostSteal.h" />
     <ClInclude Include="gamemodes\Juggernaut.h" />
     <ClInclude Include="gamemodes\KeepAway.h" />
@@ -127,6 +128,7 @@
   <ItemGroup>
     <ClCompile Include="ExternalFunctions.cpp" />
     <ClCompile Include="GameModes\BoostMod.cpp" />
+	<ClCompile Include="GameModes\Tyler.cpp" />
     <ClCompile Include="gamemodes\BoostSteal.cpp" />
     <ClCompile Include="gamemodes\Juggernaut.cpp" />
     <ClCompile Include="gamemodes\KeepAway.cpp" />

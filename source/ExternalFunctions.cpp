@@ -1,6 +1,7 @@
 #include "RocketPlugin.h"
 
 #include "GameModes/Tag.h"
+#include "GameModes/Tyler.h"
 #include "GameModes/KeepAway.h"
 #include "GameModes/BoostSteal.h"
 #include "GameModes/CrazyRumble.h"
@@ -151,6 +152,17 @@ void Tag::onCarImpact(CarWrapper, void*) const
 
 
 void Tag::onRumbleItemActivated(ActorWrapper, void*) const
+{
+    WARNING_LOG("redacted function");
+}
+
+void Tyler::onCarImpact(CarWrapper, void*) const
+{
+    WARNING_LOG("redacted function");
+}
+
+
+void Tyler::onRumbleItemActivated(ActorWrapper, void*) const
 {
     WARNING_LOG("redacted function");
 }

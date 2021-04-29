@@ -84,6 +84,9 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gameModes\Tyler.h">
+      <Filter>Resource Files\GameModes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RocketPlugin.cpp">
@@ -148,6 +151,9 @@
     </ClCompile>
     <ClCompile Include="ExternalFunctions.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gameModes\Tyler.cpp">
+      <Filter>Resource Files\GameModes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

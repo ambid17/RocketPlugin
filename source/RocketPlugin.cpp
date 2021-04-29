@@ -15,6 +15,7 @@
 #include "GameModes/Tag.h"
 #include "GameModes/Juggernaut.h"
 #include "GameModes/BoostMod.h"
+#include "GameModes/Tyler.h"
 
 BAKKESMOD_PLUGIN(RocketPlugin, "Rocket Plugin", PLUGIN_VERSION, 0x0)
 
@@ -1889,6 +1890,7 @@ void RocketPlugin::onLoad()
     customGameModes.push_back(std::make_shared<Tag>(this));
     customGameModes.push_back(std::make_shared<Juggernaut>(this));
     customGameModes.push_back(std::make_shared<BoostMod>(this));
+    customGameModes.push_back(std::make_shared<Tyler>(this));
 }
 
 
